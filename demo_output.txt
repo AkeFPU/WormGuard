@@ -1,0 +1,35 @@
+Demo workspace: /tmp/wormguard_demo_1xs6zg_g
+
+1. Publisher generates a key pair; node trusts the PUBLIC key only
+   publisher key id: ce776f147ce1d74d...
+
+2. Legitimate update (signed by the trusted publisher)
+  [ACCEPTED] update v1 from publisher
+           -> OK: signature and hash verified
+
+3. Attack: worm disguised as an update, signed with the attacker's own key
+  [REJECTED] worm signed by unknown key
+           -> UNTRUSTED_KEY: signing key is not in the trust store
+
+4. Attack: worm claims the publisher's identity but signs with the wrong key
+  [REJECTED] forged publisher identity
+           -> BAD_SIGNATURE: signature does not match the manifest
+
+5. Attack: a worm modifies the payload inside a genuine signed package
+  [REJECTED] payload tampered after signing
+           -> HASH_MISMATCH: payload was modified after signing
+
+6. Attack: replay of an old (vulnerable) version
+  [REJECTED] re-sending v1 after v1 is installed
+           -> ROLLBACK: version 1 is not newer than installed 1
+
+7. Genuine newer update still works
+  [ACCEPTED] update v2 from publisher
+           -> OK: signature and hash verified
+
+8. Key compromise: publisher key is revoked (like a stolen certificate)
+  [REJECTED] update v3 signed with revoked key
+           -> REVOKED_KEY: signing key has been revoked
+
+Audit log written to: /tmp/wormguard_demo_1xs6zg_g/node1/audit.log
+Installed versions: {'update.txt': 2}
